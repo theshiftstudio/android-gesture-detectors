@@ -3,7 +3,7 @@ package com.almeros.android.multitouch;
 import android.content.Context;
 import android.graphics.PointF;
 import android.view.MotionEvent;
-import com.almeros.android.multitouch.BaseGestureDetector;
+import android.view.View;
 
 /**
  * @author Almer Thie (code.almeros.com)
@@ -75,7 +75,7 @@ public class MoveGestureDetector extends BaseGestureDetector {
     }
 
     @Override
-    protected void handleStartProgressEvent(int actionCode, MotionEvent event){
+    protected void handleStartProgressEvent(View v, int actionCode, MotionEvent event){
         switch (actionCode) { 
             case MotionEvent.ACTION_DOWN: 
                 resetState(); // In case we missed an UP/CANCEL event
@@ -93,7 +93,7 @@ public class MoveGestureDetector extends BaseGestureDetector {
     }
     
     @Override
-    protected void handleInProgressEvent(int actionCode, MotionEvent event){ 	
+    protected void handleInProgressEvent(View v, int actionCode, MotionEvent event){
         switch (actionCode) {
         	case MotionEvent.ACTION_UP:
             case MotionEvent.ACTION_CANCEL:
