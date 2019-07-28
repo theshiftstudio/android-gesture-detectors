@@ -1,9 +1,10 @@
 package com.almeros.android.multitouch;
 
 import android.content.Context;
+import android.graphics.Matrix;
 import android.util.DisplayMetrics;
-import android.util.FloatMath;
 import android.view.MotionEvent;
+import android.view.View;
 import android.view.ViewConfiguration;
 
 /**
@@ -48,10 +49,10 @@ public abstract class TwoFingerGestureDetector extends BaseGestureDetector {
     }
     
 	@Override
-	protected abstract void handleStartProgressEvent(int actionCode, MotionEvent event);
+	protected abstract void handleStartProgressEvent(View v, int actionCode, MotionEvent event);
 
 	@Override
-	protected abstract void handleInProgressEvent(int actionCode, MotionEvent event);
+	protected abstract void handleInProgressEvent(View v, int actionCode, MotionEvent event);
 	
 	protected void updateStateByEvent(MotionEvent curr){
 		super.updateStateByEvent(curr);
@@ -92,7 +93,7 @@ public abstract class TwoFingerGestureDetector extends BaseGestureDetector {
         if (mCurrLen == -1) {
             final float cvx = mCurrFingerDiffX;
             final float cvy = mCurrFingerDiffY;
-            mCurrLen = FloatMath.sqrt(cvx*cvx + cvy*cvy);
+            mCurrLen = ((float) Math.sqrt(cvx * cvx + cvy * cvy));
         }
         return mCurrLen;
     }
@@ -107,7 +108,7 @@ public abstract class TwoFingerGestureDetector extends BaseGestureDetector {
         if (mPrevLen == -1) {
             final float pvx = mPrevFingerDiffX;
             final float pvy = mPrevFingerDiffY;
-            mPrevLen = FloatMath.sqrt(pvx*pvx + pvy*pvy);
+            mPrevLen = ((float) Math.sqrt(pvx * pvx + pvy * pvy));
         }
         return mPrevLen;
     }
@@ -124,6 +125,15 @@ public abstract class TwoFingerGestureDetector extends BaseGestureDetector {
         	return event.getX(pointerIndex) + offset;
         } 
         return 0f;
+    }
+
+    private float[] calcRawCoordinates(View view, MotionEvent event, int pointerIndex) {
+        Matrix screenMatrix = new Matrix();
+        screenMatrix.postRotate(view.getRotation(), view.getPivotX(), view.getPivotY());
+        screenMatrix.postTranslate(view.getLeft(), view.getTop());
+        float viewToScreenCoords[] = {event.getX(pointerIndex), event.getY(pointerIndex)};
+        screenMatrix.mapPoints(viewToScreenCoords);
+        return viewToScreenCoords;
     }
 
     /**
@@ -144,10 +154,12 @@ public abstract class TwoFingerGestureDetector extends BaseGestureDetector {
 	 * Check if we have a sloppy gesture. Sloppy gestures can happen if the edge
 	 * of the user's hand is touching the screen, for example.
 	 * 
-	 * @param event
-	 * @return
+	 *
+     * @param v
+     * @param event
+     * @return
 	 */
-    protected boolean isSloppyGesture(MotionEvent event){
+    protected boolean isSloppyGesture(View v, MotionEvent event){
         // As orientation can change, query the metrics in touch down
         DisplayMetrics metrics = mContext.getResources().getDisplayMetrics();
         mRightSlopEdge = metrics.widthPixels - mEdgeSlop;
@@ -159,8 +171,9 @@ public abstract class TwoFingerGestureDetector extends BaseGestureDetector {
         
         final float x0 = event.getRawX();
         final float y0 = event.getRawY();
-        final float x1 = getRawX(event, 1);
-        final float y1 = getRawY(event, 1);
+        final float[] x1y1 = calcRawCoordinates(v, event, 1);
+        final float x1 = x1y1[0];
+        final float y1 = x1y1[1];
 
         boolean p0sloppy = x0 < edgeSlop || y0 < edgeSlop
                 || x0 > rightSlop || y0 > bottomSlop;

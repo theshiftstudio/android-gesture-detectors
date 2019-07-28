@@ -2,6 +2,7 @@ package com.almeros.android.multitouch;
 
 import android.content.Context;
 import android.view.MotionEvent;
+import android.view.View;
 
 /**
  * @author Robert Nordan (robert.nordan@norkart.no)
@@ -70,7 +71,7 @@ public class ShoveGestureDetector extends TwoFingerGestureDetector {
     }
 
     @Override
-    protected void handleStartProgressEvent(int actionCode, MotionEvent event){
+    protected void handleStartProgressEvent(View v, int actionCode, MotionEvent event){
         switch (actionCode) {
             case MotionEvent.ACTION_POINTER_DOWN:
                 // At least the second finger is on screen now
@@ -82,7 +83,7 @@ public class ShoveGestureDetector extends TwoFingerGestureDetector {
                 updateStateByEvent(event);
                 
                 // See if we have a sloppy gesture
-                mSloppyGesture = isSloppyGesture(event);
+                mSloppyGesture = isSloppyGesture(v, event);
                 if(!mSloppyGesture){
                 	// No, start gesture now
                     mGestureInProgress = mListener.onShoveBegin(this);
@@ -95,7 +96,7 @@ public class ShoveGestureDetector extends TwoFingerGestureDetector {
                 }
                 
                 // See if we still have a sloppy gesture
-                mSloppyGesture = isSloppyGesture(event);
+                mSloppyGesture = isSloppyGesture(v, event);
                 if(!mSloppyGesture){
                 	// No, start normal gesture now
                     mGestureInProgress = mListener.onShoveBegin(this);
@@ -114,7 +115,7 @@ public class ShoveGestureDetector extends TwoFingerGestureDetector {
 
     
     @Override
-    protected void handleInProgressEvent(int actionCode, MotionEvent event){ 	
+    protected void handleInProgressEvent(View v, int actionCode, MotionEvent event){
         switch (actionCode) {
             case MotionEvent.ACTION_POINTER_UP:
                 // Gesture ended but 
@@ -176,8 +177,8 @@ public class ShoveGestureDetector extends TwoFingerGestureDetector {
 	}
     
     @Override
-    protected boolean isSloppyGesture(MotionEvent event){
-    	boolean sloppy = super.isSloppyGesture(event);
+    protected boolean isSloppyGesture(View v, MotionEvent event){
+    	boolean sloppy = super.isSloppyGesture(v, event);
     	if (sloppy)
     		return true;
     	

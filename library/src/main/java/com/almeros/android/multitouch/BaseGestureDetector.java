@@ -2,6 +2,7 @@ package com.almeros.android.multitouch;
 
 import android.content.Context;
 import android.view.MotionEvent;
+import android.view.View;
 
 /**
  * @author Almer Thie (code.almeros.com)
@@ -23,7 +24,7 @@ import android.view.MotionEvent;
  * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY 
  * OF SUCH DAMAGE.
  */
-public abstract class BaseGestureDetector {
+public abstract class BaseGestureDetector implements View.OnTouchListener {
     protected final Context mContext;
     protected boolean mGestureInProgress;
 
@@ -48,43 +49,47 @@ public abstract class BaseGestureDetector {
     public BaseGestureDetector(Context context) {
     	mContext = context; 	
     }
-    
+
+
 	/**
 	 * All gesture detectors need to be called through this method to be able to
 	 * detect gestures. This method delegates work to handler methods
 	 * (handleStartProgressEvent, handleInProgressEvent) implemented in
 	 * extending classes.
-	 * 
+	 *
 	 * @param event
 	 * @return
 	 */
-    public boolean onTouchEvent(MotionEvent event){
+	@Override
+	public boolean onTouch(View v, MotionEvent event) {
     	final int actionCode = event.getAction() & MotionEvent.ACTION_MASK;
     	if (!mGestureInProgress) {
-    		handleStartProgressEvent(actionCode, event);
+    		handleStartProgressEvent(v, actionCode, event);
     	} else {
-    		handleInProgressEvent(actionCode, event);
+    		handleInProgressEvent(v, actionCode, event);
     	}
     	return true;
     }
-    
+
     /**
 	 * Called when the current event occurred when NO gesture is in progress
 	 * yet. The handling in this implementation may set the gesture in progress
 	 * (via mGestureInProgress) or out of progress
+	 * @param v
 	 * @param actionCode
 	 * @param event
 	 */
-    protected abstract void handleStartProgressEvent(int actionCode, MotionEvent event);
+    protected abstract void handleStartProgressEvent(View v, int actionCode, MotionEvent event);
     
 	/**
 	 * Called when the current event occurred when a gesture IS in progress. The
 	 * handling in this implementation may set the gesture out of progress (via
 	 * mGestureInProgress).
+	 * @param v
 	 * @param actionCode
 	 * @param event
 	 */
-    protected abstract void handleInProgressEvent(int actionCode, MotionEvent event);
+    protected abstract void handleInProgressEvent(View v, int actionCode, MotionEvent event);
     
     
     protected void updateStateByEvent(MotionEvent curr){
