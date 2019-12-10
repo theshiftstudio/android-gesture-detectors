@@ -160,6 +160,9 @@ public abstract class TwoFingerGestureDetector extends BaseGestureDetector {
      * @return
 	 */
     protected boolean isSloppyGesture(View v, MotionEvent event){
+        if (event.getPointerCount() < 2) {
+            return true;
+        }
         // As orientation can change, query the metrics in touch down
         DisplayMetrics metrics = mContext.getResources().getDisplayMetrics();
         mRightSlopEdge = metrics.widthPixels - mEdgeSlop;
